@@ -22,6 +22,7 @@ def to_register_people():
         mysql_query_string += f'\n("{name}", "{address}", "{email}", "{phone_number}"),'
     mysql_query_string = mysql_query_string.replace("'", "")
     mysql_query_string = mysql_query_string[:-1] + ";"
+
     return mysql_query_string
 
 
@@ -30,15 +31,18 @@ def to_register_order():
                          " VALUES"
     today = date.today()
     for costumer_enum in data:
+        # Definitions of the dates.
         order_date = date.fromordinal(today.toordinal() - randint(1, 120))
         scheduled_delivery_date = date.fromordinal(order_date.toordinal() + randint(1, 15))
         if scheduled_delivery_date.month < 12:
             effective_delivery_date = f'"{date.fromordinal(scheduled_delivery_date.toordinal() + randint(0, 3))}"'
         else:
             effective_delivery_date = "NULL"
+        # Adding data at SQL insert query
         mysql_query_string += f'\n("{costumer_enum}", "{order_date}", "{scheduled_delivery_date}", ' \
                               f'{effective_delivery_date}),'
     mysql_query_string = mysql_query_string[:-1] + ";"
+
     return mysql_query_string
 
 
@@ -49,16 +53,20 @@ def to_register_order_has_vegetable():
         already_bought_vegetables = []
         order = range(1, randint(3, 12))  # Defining the amount of vegetables to buy.
         for _ in order:
-            to_buy_vegetable = randint(1, 14)  # Defining the vegetables id.
+            to_buy_vegetable = randint(1, 14)  # Defining the vegetable id.
+            weight_kg = float(str(uniform(0.0, 2.2))[0:4])  # Defining the amount of this vegetable.
+            # Checking if the vegetable defined was already bought by the costumer.
             if to_buy_vegetable not in already_bought_vegetables:
                 already_bought_vegetables.append(to_buy_vegetable)
             else:
                 to_buy_vegetable = randint(1, 14)
-            mysql_query_string += f'\n("{order_id}", "{to_buy_vegetable}", "{float(str(uniform(0.0, 2.2))[0:4])}"),'
+            # Adding data at SQL insert query
+            mysql_query_string += f'\n("{order_id}", "{to_buy_vegetable}", "{weight_kg}"),'
     mysql_query_string = mysql_query_string[:-1] + ";"
+
     return mysql_query_string
 
 
-# Writing the query file
-with open("generated_code.sql", "w") as to_write_file:
-    to_write_file.write(str(to_register_people()))
+# Writing in the script file.
+with open("generated_code.sql", "w") as generated_code_file:
+    generated_code_file.write(str(to_register_people()))
